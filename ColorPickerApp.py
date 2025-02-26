@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QPushButton, QLabel, QColorDialog, QVBoxLayout, 
-    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFileDialog, QRubberBand
+    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFileDialog, QRubberBand,
+    QInputDialog
 )
 from PyQt6.QtGui import QColor, QPixmap, QImage
 from PyQt6.QtCore import Qt, QRect
@@ -21,6 +22,7 @@ class ColorPickerApp(QWidget):
         self.mixed_colors = []  # tuple of (rgb, amount)
         self.image = None  # Store uploaded image
         self.selected_area = None  # Store selected region
+        self.target_color = None  # Store the target color for ratio calculation
 
         layout = QVBoxLayout()
 
@@ -49,10 +51,20 @@ class ColorPickerApp(QWidget):
         self.rgb_label = QLabel("RGB: ", self)
         layout.addWidget(self.rgb_label)
 
+        # Calculate Ratios button (hidden initially)
+        self.calc_ratios_button = QPushButton("Calculate Ratios", self)
+        self.calc_ratios_button.clicked.connect(self.calculate_ratios)
+        self.calc_ratios_button.setVisible(False)  # Hidden initially
+        layout.addWidget(self.calc_ratios_button)
+
         # Done button for mixing colors
         self.done_button = QPushButton("Done", self)
         self.done_button.clicked.connect(self.finish_selection)
         layout.addWidget(self.done_button)
+
+        # Results label for ratio display
+        self.results_label = QLabel("", self)
+        layout.addWidget(self.results_label)
 
         self.setLayout(layout)
 
@@ -75,6 +87,13 @@ class ColorPickerApp(QWidget):
             self.rgb_label.setText(f"RGB: {rgb_values}")
 
             self.colors.append(rgb_values)  # Store RGB values
+            
+            # Set as target color for ratio calculation
+            self.target_color = rgb_values
+            
+            # Show calculate ratios button if we have both image and target color
+            if self.image is not None:
+                self.calc_ratios_button.setVisible(True)
 
     def upload_image(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "Open Image", "", "Images (*.png *.jpg *.jpeg *.bmp)")
@@ -90,6 +109,10 @@ class ColorPickerApp(QWidget):
             self.scene.clear()
             self.pixmap_item = QGraphicsPixmapItem(pixmap)
             self.scene.addItem(self.pixmap_item)
+            
+            # Show calculate ratios button if we have both image and target color
+            if self.target_color is not None:
+                self.calc_ratios_button.setVisible(True)
 
     def eventFilter(self, source, event):
         """Handles mouse events for dragging a selection box."""
@@ -137,6 +160,28 @@ class ColorPickerApp(QWidget):
             self.rgb_label.setText(f"Selected RGB: {avg_rgb}")
 
             self.colors.append(avg_rgb)
+            
+            # Set as target color for ratio calculation
+            self.target_color = avg_rgb
+            
+            # Show calculate ratios button if we have both image and target color
+            if self.image is not None:
+                self.calc_ratios_button.setVisible(True)
+
+    def calculate_ratios(self):
+        """Analyzes the image to find the ratio of colors needed to create the target color."""
+        if self.image is None or self.target_color is None:
+            self.results_label.setText("Error: Need both image and target color")
+            return
+            
+        predictor = PaintMixPredictor(self.target_color)  # Target color: Quinacridone Magenta
+        mixture = predictor.calculate_mixture()
+
+        result_text = "Predicted Paint Mixture:\n"
+        for paint, ratio in mixture.items():
+            result_text += f"- {paint}: {ratio * 100:.2f}%\n"
+            
+        self.results_label.setText(result_text)
 
     def finish_selection(self):
         """Handles color mixing from manual picks and image selections."""

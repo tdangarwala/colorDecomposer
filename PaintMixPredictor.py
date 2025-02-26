@@ -70,7 +70,7 @@ class PaintMixPredictor:
 
 
 # Example usage
-predictor = PaintMixPredictor([0, 128, 128])  # Target color: Quinacridone Magenta
-mixture = predictor.calculate_mixture()
+# predictor = PaintMixPredictor([0, 128, 128])  # Target color: Quinacridone Magenta
+# mixture = predictor.calculate_mixture()
 
-print(mixture)
+# print(mixture)
