@@ -173,7 +173,10 @@ class ColorPickerApp(QWidget):
         if self.image is None or self.target_color is None:
             self.results_label.setText("Error: Need both image and target color")
             return
-            
+        
+        self.done_button.setVisible(False)
+        self.button.setVisible(False)
+
         predictor = PaintMixPredictor(self.target_color)  # Target color: Quinacridone Magenta
         mixture = predictor.calculate_mixture()
 
