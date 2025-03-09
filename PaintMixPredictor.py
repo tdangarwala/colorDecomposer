@@ -1,6 +1,6 @@
 from typing import List, Tuple, Dict
 import numpy as np
-from scipy.optimize import nnls
+from sklearn.linear_model import Lasso
 
 
 
@@ -51,19 +51,36 @@ class PaintMixPredictor:
         target_reflectance = self.estimate_reflectance(self.target_rgb)
         target_KS = self.reflectance_to_KS(target_reflectance)
 
+        normalized_rgb = self.normalize_rgb(self.target_rgb)
+        brightness = sum(normalized_rgb) / 3.0
+
         A = np.array(list(base_KS.values())).T  # Each column is a base pigment
         b = target_KS
 
-        # Solve for the weights using non-negative least squares
-        weights, _ = nnls(A, b)
+        # Calculate alpha (regularization strength) based on target color properties
+        # This helps adjust the sparsity level adaptively
+        # Lower alpha for dark colors that need more precision
+        base_alpha = 0.01
+        if brightness < 0.3:
+            alpha = base_alpha * 0.5
+        elif brightness > 0.7:
+            alpha = base_alpha * 2.0
+        else:
+            alpha = base_alpha
+            
+        # Solve using Lasso regression with non-negative constraint
+        lasso = Lasso(alpha=alpha, positive=True, max_iter=10000, fit_intercept=False)
+        lasso.fit(A, b)
+        pigment_weights = lasso.coef_
 
-        total_weight = np.sum(weights)
-
+        # Normalize weights to get percentages
+        total_weight = np.sum(pigment_weights)
         if total_weight > 0:
-            weights /= total_weight
+            pigment_weights /= total_weight
 
         # Map back to pigment names
-        return {name: weight for name, weight in zip(base_KS.keys(), weights)}
+        pigment_names = list(base_KS.keys())
+        return {name: weight for name, weight in zip(pigment_names, pigment_weights)}
 
 
 
