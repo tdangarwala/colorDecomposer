@@ -1,7 +1,6 @@
 from typing import List, Tuple, Dict
 import numpy as np
-from sklearn.linear_model import Lasso
-
+from sklearn.linear_model import ElasticNet
 
 
 class PaintMixPredictor:
@@ -60,18 +59,21 @@ class PaintMixPredictor:
         # Calculate alpha (regularization strength) based on target color properties
         # This helps adjust the sparsity level adaptively
         # Lower alpha for dark colors that need more precision
+        # Adjust regularization strengths adaptively
         base_alpha = 0.01
+        l1_ratio = 0.7  # Stronger L1 component for sparsity
+        
         if brightness < 0.3:
             alpha = base_alpha * 0.5
         elif brightness > 0.7:
             alpha = base_alpha * 2.0
         else:
             alpha = base_alpha
-            
-        # Solve using Lasso regression with non-negative constraint
-        lasso = Lasso(alpha=alpha, positive=True, max_iter=10000, fit_intercept=False)
-        lasso.fit(A, b)
-        pigment_weights = lasso.coef_
+        
+        # Solve using ElasticNet regression with non-negative constraint
+        elastic_net = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, positive=True, max_iter=10000, fit_intercept=False)
+        elastic_net.fit(A, b)
+        pigment_weights = elastic_net.coef_
 
         # Normalize weights to get percentages
         total_weight = np.sum(pigment_weights)
