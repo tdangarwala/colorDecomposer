@@ -9,7 +9,7 @@ The current decomposition process is as follows (once user selects region on inp
 3. Reflectance of target color estimated using the same as 2
 4. K/S (scattering/absorptivity) values of target and base colors calculated using the reflectances
 5. A regularization parameter is introducted to address how bright the color is as that impacts mixing ratios as well
-6. A system of equations is solved for using Lasso to compute amount of each color
+6. A system of equations is solved for using ElasticNet to compute amount of each color
 
 
-Disclaimer: I have no idea what I'm doing with this. The output is not correct at all and the main reason I've found is that the gaussian distribution does not fully capture the nuances of the reflectance spectrum of each color. A better option would be to use a spectrograph but I dont have that. I've learned about PyQt, Lasso, and a bit about color theory. 
+Disclaimer: The output is not correct at all and the main reason I've found is that the gaussian distribution does not fully capture the nuances of the reflectance spectrum of each color. A better option would be to use a spectrophotometer but I dont have that. I've learned about PyQt, regression and regularization techniques, and a bit about color theory. 
