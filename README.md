@@ -12,4 +12,10 @@ The current decomposition process is as follows (once user selects region on inp
 6. A system of equations is solved for using ElasticNet to compute amount of each color
 
 
-Disclaimer: The output is not correct at all and the main reason I've found is that the gaussian distribution does not fully capture the nuances of the reflectance spectrum of each color. A better option would be to use a spectrophotometer but I dont have that. I've learned about PyQt, regression and regularization techniques, and a bit about color theory. 
+Disclaimer: The output is not correct at all and the main reason I've found is that the gaussian distribution does not fully capture the nuances of the reflectance spectrum of each color. A better option would be to use a spectrophotometer but I dont have that. I've learned about PyQt, regression and regularization techniques, and a bit about color theory.
+
+The functionality I'm trying to match is that of this website: 
+https://goldenartistcolors.com/mixer/oil?tab=match-color
+https://goldenartistcolors.com/mixer/acrylic
+
+The match tab is exactly what I'm trying to build. Hopefully I can come close!
