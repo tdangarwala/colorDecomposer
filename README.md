@@ -9,7 +9,7 @@ The current decomposition process is as follows (once user selects region on inp
 3. Reflectance of target color estimated using the same as 2
 4. K/S (scattering/absorptivity) values of target and base colors calculated using the reflectances
 5. A regularization parameter is introducted to address how bright the color is as that impacts mixing ratios as well
-6. A system of equations is solved for using ElasticNet to compute amount of each color
+6. A system of equations is solved for using ElasticNet to compute amount of each color. ElasticNet is useful because it helps ensure that the output is sparse (dont have a bunch of colors showing up in small percentages) and if 2 colors have similar behavior it picks one. 
 
 
 Disclaimer: The output is not correct at all and the main reason I've found is that the gaussian distribution does not fully capture the nuances of the reflectance spectrum of each color. A better option would be to use a spectrophotometer but I dont have that. I've learned about PyQt, regression and regularization techniques, and a bit about color theory.
